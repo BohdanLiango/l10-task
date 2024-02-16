@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,21 +18,16 @@ Route::get('/', function () {
     return redirect()->route('tasks.index');
 });
 
-Route::get('/tasks', function () {
-    return view('index', [
-        'tasks' => \App\Models\Task::latest()->where('completed', true)->get()
-    ]);
-})->name('tasks.index');
-
-Route::view('/tasks/create', 'create');
-
-Route::get('/tasks/{id}', function ($id) {
-    return view('show', ['task' => \App\Models\Task::findOrFail($id)]);
-})->name('tasks.show');
-
-Route::post('/tasks', function (Request $request) {
-   dd($request->all());
-})->name('tasks.store');
+Route::prefix('/tasks')->name('tasks.')->group(static function () {
+    Route::get('/', [TaskController::class, 'index'])->name('index');
+    Route::get('/create', [TaskController::class, 'create'])->name('create');
+    Route::get('/{id}/edit', [TaskController::class, 'edit'])->name('edit');
+    Route::get('/{id}', [TaskController::class, 'show'])->name('show');
+    Route::post('/', [TaskController::class, 'store'])->name('store');
+    Route::put('/{id}', [TaskController::class, 'update'])->name('update');
+    Route::post('/{id}', [TaskController::class, 'delete'])->name('delete');
+    Route::put('/{id}/toogle', [TaskController::class, 'complete'])->name('complete');
+});
 
 Route::fallback(function () {
     return 'Still got somewhere!';
